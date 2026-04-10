@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einfache Einkaufsliste</title>
+    <link rel="icon" href="favicon-16x16.png" sizes="16x16" type="image/png">
+    <link rel="icon" href="favicon-32x32.png" sizes="32x32"type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            box-sizing: border-box;
+            color: white;
+            padding-bottom: 90px; /* Platzhalter für den festen Footer */
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ddd;
+            margin-top: 1rem;
+        }
+
+        #einkaufsListe {
+            list-style-type: none;
+            padding: 0 20px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            overflow-y: auto; /* Die Liste selbst kann scrollen */
+            flex-grow: 1; /* Nimmt den restlichen Platz ein */
+        }
+
+        #einkaufsListe li {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+        }
+
+        #einkaufsListe li:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Die 12 Pastellfarben in einer rotierenden Reihenfolge */
+        #einkaufsListe li:nth-child(12n+1) { background-color: #FFB6C1; } /* Pastellrosa */
+        #einkaufsListe li:nth-child(12n+2) { background-color: #FFDAB9; } /* Pastellpfirsich */
+        #einkaufsListe li:nth-child(12n+3) { background-color: #FFFFE0; } /* Hellgelb */
+        #einkaufsListe li:nth-child(12n+4) { background-color: #AFE1AF; } /* Pastellgrün */
+        #einkaufsListe li:nth-child(12n+5) { background-color: #E0FFFF; } /* Hellmintgrün */
+        #einkaufsListe li:nth-child(12n+6) { background-color: #B0E0E6; } /* Pastellblau */
+        #einkaufsListe li:nth-child(12n+7) { background-color: #E6E6FA; } /* Lavendel */
+        #einkaufsListe li:nth-child(12n+8) { background-color: #D8BFD8; } /* Hellflieder */
+        #einkaufsListe li:nth-child(12n+9) { background-color: #B19CD9; } /* Pastellviolett */
+        #einkaufsListe li:nth-child(12n+10) { background-color: #D2B48C; } /* Pastellbraun */
+        #einkaufsListe li:nth-child(12n+11) { background-color: #D3D3D3; } /* Hellgrau */
+        #einkaufsListe li:nth-child(12n+12) { background-color: #AFEEEE; } /* Pastelltürkis */
+        /* Der feste Eingabebereich */
+        #input-bereich-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #444;
+            padding: 10px 20px;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
+            box-sizing: border-box;
+            z-index: 100;
+        }
+
+        #input-bereich {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        #eingabeFeld {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+        }
+        
+        #eingabeFeld::placeholder {
+            color: #aaa;
+        }
+
+        #hinzufuegenBtn {
+            padding: 12px;
+            width: 50px;
+            height: 50px;
+            border: none;
+            background-color: #ff9a8b;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #hinzufuegenBtn:hover {
+            background-color: #ff7f68;
+            transform: translateY(-2px);
+        }
+
+        #undoBtn {
+            display: none;
+            position: fixed;
+            bottom: 70px; /* Position oberhalb des Eingabebereichs */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 101;
+        }
+        
+        #undoBtn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Einkaufsliste</h1>
+    
+    <ul id="einkaufsListe"></ul>
+    
+    <button id="undoBtn">⬅️ Rückgängig</button>
+    
+    <div id="input-bereich-container">
+        <div id="input-bereich">
+            <input type="text" id="eingabeFeld" placeholder="Artikel hinzufügen...">
+            <button id="hinzufuegenBtn">+</button>
+        </div>
+    </div>
+
+<script>
+    const eingabeFeld = document.getElementById('eingabeFeld');
+    const hinzufuegenBtn = document.getElementById('hinzufuegenBtn');
+    const einkaufsListe = document.getElementById('einkaufsListe');
+    const undoBtn = document.getElementById('undoBtn');
+
+    let geloeschteArtikel = [];
+    let pressTimer;
+
+    function artikelHinzufuegen() {
+        const artikelText = eingabeFeld.value.trim();
+
+        if (artikelText !== "") {
+            const listenelement = document.createElement('li');
+            listenelement.textContent = artikelText;
+            
+            einkaufsListe.prepend(listenelement);
+            eingabeFeld.value = "";
+            
+            geloeschteArtikel = [];
+            undoBtn.style.display = 'none';
+
+            listenelement.addEventListener('click', function() {
+                const artikelZumLoeschen = this;
+                
+                artikelZumLoeschen.remove();
+                
+                geloeschteArtikel.push(artikelZumLoeschen);
+                undoBtn.style.display = 'block';
+            });
+        }
+    }
+
+    function artikelRueckgaengigMachen() {
+        if (geloeschteArtikel.length > 0) {
+            const letzterArtikel = geloeschteArtikel.pop();
+            einkaufsListe.prepend(letzterArtikel);
+            
+            if (geloeschteArtikel.length === 0) {
+                undoBtn.style.display = 'none';
+            }
+        }
+    }
+
+    // Funktion für den Vollbildmodus
+    function toggleFullscreen() {
+        const doc = document.documentElement;
+        if (doc.requestFullscreen) {
+            doc.requestFullscreen();
+        } else if (doc.webkitRequestFullscreen) { /* Safari */
+            doc.webkitRequestFullscreen();
+        } else if (doc.msRequestFullscreen) { /* IE11 */
+            doc.msRequestFullscreen();
+        }
+    }
+
+    // Event für den Button-Klick (normaler, kurzer Klick)
+    hinzufuegenBtn.addEventListener('click', () => {
+        // Stoppt den Timer, falls er läuft, um Kollisionen zu vermeiden
+        clearTimeout(pressTimer);
+        artikelHinzufuegen();
+        eingabeFeld.focus();
+    });
+
+    // NEU: Event für das lange Drücken auf mobilen Geräten
+    hinzufuegenBtn.addEventListener('touchstart', () => {
+        // Startet einen Timer, wenn das Berühren beginnt
+        pressTimer = setTimeout(toggleFullscreen, 500); // 500ms = eine halbe Sekunde
+    });
+
+    hinzufuegenBtn.addEventListener('touchend', () => {
+        // Löscht den Timer, wenn das Berühren endet (damit die Funktion nicht ausgeführt wird)
+        clearTimeout(pressTimer);
+    });
+
+    // NEU: Events für langes Drücken mit der Maus auf dem Desktop
+    hinzufuegenBtn.addEventListener('mousedown', () => {
+        pressTimer = setTimeout(toggleFullscreen, 500);
+    });
+
+    hinzufuegenBtn.addEventListener('mouseup', () => {
+        clearTimeout(pressTimer);
+    });
+
+    hinzufuegenBtn.addEventListener('mouseleave', () => {
+        clearTimeout(pressTimer);
+    });
+
+    eingabeFeld.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            artikelHinzufuegen();
+        }
+    });
+
+    undoBtn.addEventListener('click', artikelRueckgaengigMachen);
+</script>
+</body>
+</html>
