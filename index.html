@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Einkaufsliste-V2</title>
+    <title>Einkaufsliste</title>
     <link rel="icon" href="favicon-16x16.png" sizes="16x16" type="image/png">
     <link rel="icon" href="favicon-32x32.png" sizes="32x32"type="image/png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -12,14 +12,17 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#333333">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #333;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            height: 100dvh;
             margin: 0;
-            box-sizing: border-box;
             color: white;
             padding-bottom: 90px; /* Platzhalter für den festen Footer */
             padding-bottom: env(safe-area-inset-bottom);
@@ -29,6 +32,7 @@
             text-align: center;
             color: #ddd;
             margin-top: 1rem;
+            flex-shrink: 0;
         }
 
         #einkaufsListe {
@@ -37,9 +41,17 @@
             width: 100%;
             max-width: 500px;
             margin: 0 auto;
-            overflow-y: auto; /* Die Liste selbst kann scrollen */
-            flex-grow: 1; /* Nimmt den restlichen Platz ein */
+            flex-grow: 1; 
+            overflow-y: auto;
+            padding-bottom: 20px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
         }
+
+        #einkaufsListe::-webkit-scrollbar {
+            display: none;
+}       
 
         #einkaufsListe li {
             padding: 15px;
@@ -68,17 +80,13 @@
         #einkaufsListe li:nth-child(12n+10) { background-color: #D2B48C; } /* Pastellbraun */
         #einkaufsListe li:nth-child(12n+11) { background-color: #D3D3D3; } /* Hellgrau */
         #einkaufsListe li:nth-child(12n+12) { background-color: #AFEEEE; } /* Pastelltürkis */
-        /* Der feste Eingabebereich */
+        
         #input-bereich-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
             background-color: #444;
             padding: 10px 20px;
+            padding-bottom: calc(15px + env(safe-area-inset-bottom));
             box-shadow: 0 -4px 15px rgba(0,0,0,0.2);
-            box-sizing: border-box;
-            z-index: 100;
+            flex-shrink: 0;
         }
 
         #input-bereich {
@@ -97,6 +105,7 @@
             font-size: 16px;
             background-color: #555;
             color: white;
+            outline: none;
         }
         
         #eingabeFeld::placeholder {
@@ -104,7 +113,6 @@
         }
 
         #hinzufuegenBtn {
-            padding: 12px;
             width: 50px;
             height: 50px;
             border: none;
@@ -113,38 +121,45 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 24px;
-            line-height: 1;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: background-color 0.3s, transform 0.1s;
+            transition: all 0.2s ease;
         }
 
         #hinzufuegenBtn:hover {
             background-color: #ff7f68;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 127, 104, 0.3);
         }
+
+        #hinzufuegenBtn:active {
+            transform: translateY(0); /* Beim Draufdrücken geht er wieder runter */
+}
 
         #undoBtn {
             display: none;
-            position: fixed;
-            bottom: 70px; /* Position oberhalb des Eingabebereichs */
+            position: absolute;
+            bottom: 85px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
             border: none;
-            padding: 10px 15px;
+            padding: 8px 15px;
             border-radius: 8px;
             color: #fff;
             cursor: pointer;
             font-size: 16px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             z-index: 101;
+            transition: all 0.3s ease;
         }
         
         #undoBtn:hover {
             background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-50%) translateY(-2px);
         }
     </style>
 </head>
@@ -158,7 +173,7 @@
     
     <div id="input-bereich-container">
         <div id="input-bereich">
-            <input type="text" id="eingabeFeld" placeholder="Artikel hinzufügen...">
+            <input type="text" id="eingabeFeld" placeholder="Was möchtest du kaufen?">
             <button id="hinzufuegenBtn">+</button>
         </div>
     </div>
