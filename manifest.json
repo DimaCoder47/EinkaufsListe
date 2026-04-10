@@ -1,7 +1,21 @@
 {
-  "name": "Meine Einkaufs-App",
+  "short_name": "Einkauf",
+  "name": "Einkaufsliste",
+  "icons": [
+    {
+      "src": "favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#333333",
+  "theme_color": "#333333",
   "display": "fullscreen",
-  "start_url": "/",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait"
 }
